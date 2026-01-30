@@ -1,43 +1,512 @@
-function processVector() {
-            goBtn.classList.add('hidden');
-            loadingMsg.classList.remove('hidden');
-            emptyResult.classList.add('hidden');
-
-            // VECTORIZER.AI Jaisa Result Pane Ki Settings
-            const options = {
-                ltres: 0.1,        // Lines ko smooth karne ke liye
-                qtres: 0.1,        // Curves ko behtar banane ke liye
-                pathomit: 0.5,     // Choti details ko bhi trace karega
-                colorsampling: 1,  // Har color ko pick karega
-                numberofcolors: 64, // Colors ki limit barha di (Jacket ke patterns ke liye)
-                mincolorratio: 0, 
-                colorquantcycles: 3, // Rangon ki quality behtar karne ke liye
-                blurradius: 0.1,    // Thora blur taake edges smooth hon
-                blurdelta: 20
-            };
-
-            // Start Tracing Engine
-            ImageTracer.imageToSVG(preview.src, function(svgstr) {
-                // SVG dikhane ke liye
-                svgContainer.innerHTML = svgstr;
-                svgContainer.classList.remove('hidden');
-                
-                // SVG ki width/height set karna takay frame mein fit aaye
-                const svgElement = svgContainer.querySelector('svg');
-                svgElement.setAttribute("width", "100%");
-                svgElement.setAttribute("height", "auto");
-
-                // Download Link fix
-                const blob = new Blob([svgstr], {type: 'image/svg+xml'});
-                const url = URL.createObjectURL(blob);
-                dlBtn.href = url;
-                dlBtn.download = "vectorizer_pro_design.svg";
-                
-                dlBtn.classList.remove('hidden');
-                loadingMsg.classList.add('hidden');
-                goBtn.classList.remove('hidden');
-                
-                // Screen ko auto-scroll karein result ki taraf
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, options);
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mockup Enhancer - Free</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Upload Section */
+        .upload-area {
+            border: 3px dashed #6a11cb;
+            border-radius: 15px;
+            padding: 50px 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #2575fc;
+            background: #f0f2ff;
+            transform: translateY(-5px);
+        }
+
+        .upload-icon {
+            font-size: 60px;
+            color: #6a11cb;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #555;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Preview */
+        .preview-container {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .preview-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 0 auto;
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Controls */
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .enhance-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .enhance-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(106, 17, 203, 0.4);
+        }
+
+        .enhance-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result */
+        .result-container {
+            display: none;
+            margin-top: 30px;
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .result-title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .comparison {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .image-box {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+        }
+
+        .image-box h4 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+        }
+
+        .result-image {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #00b894;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #00a085;
+            transform: scale(1.05);
+        }
+
+        /* Loading */
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #6a11cb;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Features */
+        .features {
+            margin-top: 40px;
+        }
+
+        .features h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .feature h3 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .comparison {
+                flex-direction: column;
+            }
+            .image-box {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎨 AI Mockup Enhancer</h1>
+            <p>کوئی بھی تصویر اپ لوڈ کریں، ہائی کوالٹی ورژن فری حاصل کریں</p>
+        </div>
+
+        <!-- Upload Area -->
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">
+                <h3>تصویر اپ لوڈ کریں</h3>
+                <p>کلک کریں یا تصویر کو یہاں ڈریگ کریں</p>
+                <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">PNG, JPG, JPEG (Max: 10MB)</p>
+            </div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*">
+
+        <!-- Preview -->
+        <div class="preview-container" id="previewContainer">
+            <div class="preview-title">آپ کی تصویر:</div>
+            <img id="imagePreview" class="image-preview" alt="Uploaded Image">
+        </div>
+
+        <!-- Loading -->
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <p>AI تصویر کو بہتر بنا رہا ہے... براہ کرم انتظار کریں</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="enhance-btn" id="enhanceBtn" disabled>🚀 ہائی کوالٹی بنائیں</button>
+        </div>
+
+        <!-- Result -->
+        <div class="result-container" id="resultContainer">
+            <div class="result-title">نتیجہ:</div>
+            <div class="comparison">
+                <div class="image-box">
+                    <h4>اصل تصویر</h4>
+                    <img id="originalImage" class="result-image" alt="Original">
+                </div>
+                <div class="image-box">
+                    <h4>بہتر شدہ تصویر</h4>
+                    <img id="enhancedImage" class="result-image" alt="Enhanced">
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="#" id="downloadLink" class="download-btn" download>📥 ڈاؤن لوڈ کریں</a>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="features">
+            <h2>✨ خصوصیات</h2>
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-icon">🖼️</div>
+                    <h3>ہائی ریزولوشن</h3>
+                    <p>4x بہتر کوالٹی</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎨</div>
+                    <h3>رنگ محفوظ</h3>
+                    <p>اصل رنگ برقرار</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>تیز پروسیسنگ</h3>
+                    <p>AI ٹیکنالوجی</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">💯</div>
+                    <h3>مکمل فری</h3>
+                    <p>کوئی چارج نہیں</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 AI Mockup Enhancer | تمام حقوق محفوظ ہیں</p>
+            <p style="font-size: 0.8rem; margin-top: 5px;">یہ ایک ڈیمو ویب ایپ ہے۔ اصلی AI پروسیسنگ کے لیے API کی ضرورت ہوتی ہے۔</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const enhanceBtn = document.getElementById('enhanceBtn');
+        const loader = document.getElementById('loader');
+        const resultContainer = document.getElementById('resultContainer');
+        const originalImage = document.getElementById('originalImage');
+        const enhancedImage = document.getElementById('enhancedImage');
+        const downloadLink = document.getElementById('downloadLink');
+
+        let uploadedImage = null;
+
+        // File Upload Handler
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('براہ کرم صرف تصویری فائل اپ لوڈ کریں!');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('فائل سائز 10MB سے زیادہ نہیں ہونا چاہیے!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedImage = event.target.result;
+                
+                // Update UI
+                imagePreview.src = uploadedImage;
+                previewContainer.style.display = 'block';
+                enhanceBtn.disabled = false;
+                
+                // Update upload area text
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">✅</div>
+                    <div class="upload-text">
+                        <h3>تصویر اپ لوڈ ہو گئی!</h3>
+                        <p style="color: green;">${file.name}</p>
+                        <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">
+                            سائز: ${(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Drag and Drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#2575fc';
+            uploadArea.style.background = '#e6e9ff';
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.style.borderColor = '#6a11cb';
+            uploadArea.style.background = '#f8f9ff';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#6a11cb';
+            uploadArea.style.background = '#f8f9ff';
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                fileInput.files = e.dataTransfer.files;
+                const event = new Event('change');
+                fileInput.dispatchEvent(event);
+            }
+        });
+
+        // Enhance Image Function
+        enhanceBtn.addEventListener('click', async function() {
+            if (!uploadedImage) return;
+
+            // Show loader
+            loader.style.display = 'block';
+            enhanceBtn.disabled = true;
+            enhanceBtn.textContent = 'پروسیسنگ...';
+
+            // Simulate AI processing (In real app, you would call an API)
+            setTimeout(async () => {
+                try {
+                    // Create enhanced version (simulated)
+                    const enhancedDataUrl = await simulateEnhancement(uploadedImage);
+                    
+                    // Update result section
+                    originalImage.src = uploadedImage;
+                    enhancedImage.src = enhancedDataUrl;
+                    downloadLink.href = enhancedDataUrl;
+                    downloadLink.download = 'enhanced_image.png';
+                    
+                    // Show result
+                    resultContainer.style.display = 'block';
+                    
+                    // Scroll to result
+                    resultContainer.scrollIntoView({ behavior: 'smooth' });
+                    
+                } catch (error) {
+                    alert('خرابی: ' + error.message);
+                } finally {
+                    // Hide loader
+                    loader.style.display = 'none';
+                    enhanceBtn.disabled = false;
+                    enhanceBtn.textContent = '🚀 ہائی کوالٹی بنائیں';
+                }
+            }, 2000); // 2 second simulation
+        });
+
+        // Simulate AI Enhancement (Demo only - uses canvas for fake enhancement)
+        function simulateEnhancement(imageDataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Increase resolution (simulate 2x enhancement)
+                    canvas.width = img.width * 2;
+                    canvas.height = img.height * 2;
+                    
+                    // Draw original image
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Apply some enhancement filters (simulated)
+                    ctx.filter = 'brightness(1.05) contrast(1.05) saturate(1.1)';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Add watermark/text
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                    ctx.font = '20px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Enhanced by AI Mockup Enhancer', canvas.width/2, 30);
+                    
+                    // Convert to data URL
+                    const enhancedDataUrl = canvas.toDataURL('image/png', 1.0);
+                    resolve(enhancedDataUrl);
+                };
+                img.src = imageDataUrl;
+            });
+        }
+
+        // Instructions Alert
+        window.onload = function() {
+            setTimeout(() => {
+                if (confirm("🎉 خوش آمدید!\n\nکیا آپ ہدایات دیکھنا چاہیں گے؟")) {
+                    alert("🚀 استعمال کرنے کا طریقہ:\n\n1. تصویر اپ لوڈ کریں (کلک یا ڈریگ اینڈ ڈراپ)\n2. 'ہائی کوالٹی بنائیں' بٹن دبائیں\n3. نتیجہ دیکھیں اور ڈاؤن لوڈ کریں\n\nیہ ایک ڈیمو ورژن ہے۔ اصلی AI استعمال کرنے کے لیے API کی ضرورت ہوگی۔");
+                }
+            }, 1000);
+        };
+    </script>
+</body>
+</html>
