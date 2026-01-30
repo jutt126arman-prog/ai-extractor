@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Design Extractor - بغیر API Key</title>
+    <title>Design Only Extractor - صرف ڈیزائن نکالیں</title>
     <style>
         * {
             margin: 0;
@@ -13,63 +13,63 @@
         }
 
         body {
-            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            background: #1a1a2e;
             color: white;
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            background: #16213e;
             border-radius: 20px;
             padding: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 2px solid #0f3460;
         }
 
         /* Header */
         .header {
             text-align: center;
             margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #0f3460;
         }
 
         .header h1 {
             font-size: 2.8rem;
-            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+            background: linear-gradient(90deg, #e94560, #00dbde);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
 
         .header p {
-            color: #aaa;
+            color: #8a8a8a;
             font-size: 1.1rem;
         }
 
-        /* Upload Section */
-        .upload-section {
-            border: 3px dashed rgba(255,255,255,0.3);
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed #e94560;
             border-radius: 15px;
-            padding: 40px;
+            padding: 60px 30px;
             text-align: center;
+            margin: 30px 0;
             cursor: pointer;
-            margin-bottom: 30px;
             transition: all 0.3s;
-            background: rgba(0,0,0,0.2);
+            background: rgba(233, 69, 96, 0.1);
         }
 
-        .upload-section:hover {
+        .upload-area:hover {
             border-color: #00dbde;
-            background: rgba(0,219,222,0.1);
+            background: rgba(0, 219, 222, 0.1);
         }
 
         .upload-icon {
             font-size: 70px;
             margin-bottom: 20px;
-            color: #00dbde;
+            color: #e94560;
         }
 
         .upload-text h3 {
@@ -78,152 +78,163 @@
             color: white;
         }
 
-        .upload-text p {
-            color: #888;
-        }
-
         #fileInput {
             display: none;
         }
 
-        /* Preview */
-        .preview-container {
+        /* Crop Area */
+        .crop-section {
             display: none;
             margin: 30px 0;
-            text-align: center;
         }
 
-        .preview-title {
+        .crop-title {
+            text-align: center;
             font-size: 1.5rem;
             margin-bottom: 20px;
-            color: white;
+            color: #00dbde;
         }
 
-        .preview-image {
-            max-width: 100%;
-            max-height: 300px;
+        .crop-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            border: 3px solid #0f3460;
             border-radius: 10px;
-            border: 3px solid rgba(255,255,255,0.2);
+            overflow: hidden;
         }
 
-        /* Process Button */
-        .process-section {
+        #cropImage {
+            max-width: 100%;
+            display: block;
+            cursor: crosshair;
+        }
+
+        .crop-box {
+            position: absolute;
+            border: 2px solid #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            cursor: move;
+            display: none;
+        }
+
+        .crop-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #00ff88;
+            border-radius: 50%;
+            cursor: nwse-resize;
+        }
+
+        /* Crop Controls */
+        .crop-controls {
             text-align: center;
-            margin: 30px 0;
+            margin-top: 20px;
         }
 
-        .process-btn {
-            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+        .crop-btn {
+            background: linear-gradient(90deg, #e94560, #00dbde);
             color: white;
             border: none;
-            padding: 18px 60px;
-            font-size: 1.3rem;
+            padding: 12px 40px;
             border-radius: 50px;
             cursor: pointer;
-            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 5px;
             transition: all 0.3s;
         }
 
-        .process-btn:hover:not(:disabled) {
+        .crop-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(0,219,222,0.5);
         }
 
-        .process-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Results */
-        .results-section {
+        /* Result */
+        .result-section {
             display: none;
-            margin-top: 40px;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .results-title {
+            margin: 40px 0;
             text-align: center;
+        }
+
+        .result-title {
             font-size: 2rem;
             margin-bottom: 30px;
-            color: white;
+            color: #00ff88;
         }
 
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        @media (max-width: 768px) {
-            .results-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .result-box {
-            background: rgba(0,0,0,0.3);
+        .result-container {
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
+            padding: 25px;
+            margin: 0 auto;
+            max-width: 500px;
+            border: 2px solid #00dbde;
         }
 
-        .result-box h3 {
-            color: #fc00ff;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-        }
-
-        .result-image {
-            width: 100%;
-            max-height: 350px;
-            object-fit: contain;
+        #resultDesign {
+            max-width: 100%;
+            max-height: 400px;
             border-radius: 10px;
-            background: rgba(0,0,0,0.5);
+            background: white;
             padding: 10px;
         }
 
         /* Download */
         .download-section {
-            text-align: center;
-            margin-top: 40px;
+            margin-top: 30px;
         }
 
         .download-btn {
             display: inline-block;
-            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+            background: linear-gradient(90deg, #e94560, #00dbde);
             color: white;
-            padding: 16px 45px;
+            padding: 15px 50px;
             border-radius: 50px;
             text-decoration: none;
             font-weight: bold;
+            font-size: 1.2rem;
             margin: 10px;
             transition: all 0.3s;
         }
 
         .download-btn:hover {
             transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 219, 222, 0.5);
+        }
+
+        /* Auto Detect */
+        .auto-detect {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .auto-btn {
+            background: linear-gradient(90deg, #00dbde, #00ff88);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .auto-btn:hover {
+            transform: scale(1.05);
         }
 
         /* Instructions */
         .instructions {
-            background: rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 15px;
-            padding: 30px;
-            margin-top: 50px;
+            padding: 25px;
+            margin-top: 40px;
         }
 
         .instructions h3 {
             text-align: center;
             margin-bottom: 25px;
-            color: #00dbde;
-            font-size: 1.5rem;
+            color: #e94560;
         }
 
         .steps {
@@ -235,14 +246,14 @@
         .step {
             text-align: center;
             padding: 20px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
         }
 
         .step-number {
             width: 40px;
             height: 40px;
-            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            background: linear-gradient(90deg, #e94560, #00dbde);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -250,96 +261,63 @@
             margin: 0 auto 15px;
             font-weight: bold;
         }
-
-        .step p {
-            color: #aaa;
-            font-size: 0.9rem;
-        }
-
-        /* Loading */
-        .loader {
-            display: none;
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        .spinner {
-            border: 5px solid rgba(255,255,255,0.1);
-            border-top: 5px solid #00dbde;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>🎨 Auto Design Extractor</h1>
-            <p>کوئی بھی Mockup اپ لوڈ کریں، AI خودکار طور پر ڈیزائن الگ کر دے گا</p>
-            <p style="color: #00ff88; margin-top: 10px; font-size: 0.9rem;">
-                ✅ No API Key Required | 100% Free | Works Offline
-            </p>
+            <h1>✂️ Design Only Extractor</h1>
+            <p>Mockup میں سے صرف ڈیزائن/لوگو کا حصہ نکالیں - پورا mockup نہیں</p>
         </div>
 
-        <!-- Upload Section -->
-        <div class="upload-section" id="uploadSection">
+        <!-- Upload Area -->
+        <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📤</div>
             <div class="upload-text">
                 <h3>Mockup اپ لوڈ کریں</h3>
-                <p>کلک کریں یا تصویر ڈریگ اینڈ ڈراپ کریں</p>
-                <p style="color: #888; margin-top: 10px;">PNG, JPG, JPEG (Max 10MB)</p>
+                <p>اپنی T-shirt/Mug/Bottle کی تصویر اپ لوڈ کریں</p>
+                <p style="color: #8a8a8a; margin-top: 10px;">PNG, JPG, JPEG</p>
             </div>
         </div>
         <input type="file" id="fileInput" accept="image/*">
 
-        <!-- Preview -->
-        <div class="preview-container" id="previewContainer">
-            <div class="preview-title">آپ کا Mockup:</div>
-            <img id="previewImage" class="preview-image" alt="Preview">
+        <!-- Auto Detect -->
+        <div class="auto-detect" id="autoDetect" style="display: none;">
+            <button class="auto-btn" id="autoDetectBtn">
+                🔍 ڈیزائن خودکار ڈھونڈیں
+            </button>
         </div>
 
-        <!-- Loader -->
-        <div class="loader" id="loader">
-            <div class="spinner"></div>
-            <p style="margin-top: 20px; color: #00dbde; font-size: 1.1rem;">
-                AI ڈیزائن الگ کر رہا ہے...
-            </p>
-        </div>
-
-        <!-- Process Button -->
-        <div class="process-section">
-            <button class="process-btn" id="processBtn" disabled>🚀 ڈیزائن الگ کریں</button>
-        </div>
-
-        <!-- Results -->
-        <div class="results-section" id="resultsSection">
-            <div class="results-title">✅ ڈیزائن الگ ہو گیا!</div>
-            
-            <div class="results-grid">
-                <div class="result-box">
-                    <h3>اصل Mockup</h3>
-                    <img id="originalImage" class="result-image" alt="Original">
-                </div>
-                <div class="result-box">
-                    <h3>الگ شدہ ڈیزائن</h3>
-                    <img id="extractedDesign" class="result-image" alt="Extracted">
+        <!-- Crop Section -->
+        <div class="crop-section" id="cropSection">
+            <div class="crop-title">🔲 ڈیزائن کا حصہ منتخب کریں</div>
+            <div class="crop-container" id="cropContainer">
+                <img id="cropImage" src="" alt="Crop Image">
+                <div class="crop-box" id="cropBox">
+                    <div class="crop-handle" style="top: -5px; left: -5px;"></div>
+                    <div class="crop-handle" style="top: -5px; right: -5px;"></div>
+                    <div class="crop-handle" style="bottom: -5px; left: -5px;"></div>
+                    <div class="crop-handle" style="bottom: -5px; right: -5px;"></div>
                 </div>
             </div>
+            <div class="crop-controls">
+                <button class="crop-btn" id="cropBtn">✂️ ڈیزائن کاٹیں</button>
+                <button class="crop-btn" onclick="resetApp()" style="background: #666;">🔄 دوبارہ</button>
+            </div>
+        </div>
 
+        <!-- Result Section -->
+        <div class="result-section" id="resultSection">
+            <div class="result-title">✅ صرف ڈیزائن تیار ہے!</div>
+            <div class="result-container">
+                <img id="resultDesign" alt="Extracted Design">
+            </div>
             <div class="download-section">
                 <a href="#" id="downloadBtn" class="download-btn" download="design.png">
                     ⬇️ PNG ڈاؤن لوڈ کریں
                 </a>
-                <button class="download-btn" onclick="resetApp()" style="background: rgba(255,255,255,0.1);">
+                <button class="download-btn" onclick="resetApp()" style="background: linear-gradient(90deg, #666, #888);">
                     🔄 نیا Mockup
                 </button>
             </div>
@@ -347,23 +325,23 @@
 
         <!-- Instructions -->
         <div class="instructions">
-            <h3>🚀 استعمال کرنے کا طریقہ</h3>
+            <h3>🎯 استعمال کرنے کا طریقہ</h3>
             <div class="steps">
                 <div class="step">
                     <div class="step-number">1</div>
-                    <p>کوئی بھی Mockup تصویر اپ لوڈ کریں</p>
+                    <p>Mockup اپ لوڈ کریں</p>
                 </div>
                 <div class="step">
                     <div class="step-number">2</div>
-                    <p>"ڈیزائن الگ کریں" بٹن دبائیں</p>
+                    <p>ڈیزائن کا حصہ منتخب کریں</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <p>AI خودکار ڈیزائن الگ کرے گا</p>
+                    <p>صرف ڈیزائن کاٹیں</p>
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
-                    <p>شفاف PNG ڈاؤن لوڈ کریں</p>
+                    <p>PNG ڈاؤن لوڈ کریں</p>
                 </div>
             </div>
         </div>
@@ -371,353 +349,371 @@
 
     <script>
         // Elements
-        const uploadSection = document.getElementById('uploadSection');
+        const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
-        const previewContainer = document.getElementById('previewContainer');
-        const previewImage = document.getElementById('previewImage');
-        const processBtn = document.getElementById('processBtn');
-        const loader = document.getElementById('loader');
-        const resultsSection = document.getElementById('resultsSection');
-        
+        const cropSection = document.getElementById('cropSection');
+        const cropImage = document.getElementById('cropImage');
+        const cropBox = document.getElementById('cropBox');
+        const cropContainer = document.getElementById('cropContainer');
+        const cropBtn = document.getElementById('cropBtn');
+        const resultSection = document.getElementById('resultSection');
+        const resultDesign = document.getElementById('resultDesign');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const autoDetect = document.getElementById('autoDetect');
+        const autoDetectBtn = document.getElementById('autoDetectBtn');
+
         // State
-        let uploadedImage = null;
+        let originalImage = null;
+        let isDragging = false;
+        let isResizing = false;
+        let startX, startY;
+        let cropBoxX = 100, cropBoxY = 100;
+        let cropBoxWidth = 200, cropBoxHeight = 200;
 
         // File Upload
-        uploadSection.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('click', () => fileInput.click());
         
-        // Drag and Drop
-        uploadSection.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadSection.style.borderColor = '#00dbde';
-            uploadSection.style.background = 'rgba(0,219,222,0.2)';
-        });
+        fileInput.addEventListener('change', handleFileUpload);
 
-        uploadSection.addEventListener('dragleave', () => {
-            uploadSection.style.borderColor = '';
-            uploadSection.style.background = '';
-        });
-
-        uploadSection.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadSection.style.borderColor = '';
-            uploadSection.style.background = '';
-            
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                handleFile(file);
-            }
-        });
-
-        fileInput.addEventListener('change', (e) => {
+        function handleFileUpload(e) {
             const file = e.target.files[0];
-            if (file) handleFile(file);
-        });
-
-        function handleFile(file) {
-            if (!file.type.startsWith('image/')) {
-                alert('براہ کرم صرف تصویری فائل اپ لوڈ کریں');
-                return;
-            }
-
-            if (file.size > 10 * 1024 * 1024) {
-                alert('فائل سائز 10MB سے زیادہ نہیں ہونا چاہیے');
-                return;
-            }
+            if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = (e) => {
-                uploadedImage = e.target.result;
-                previewImage.src = uploadedImage;
-                previewContainer.style.display = 'block';
-                processBtn.disabled = false;
+            reader.onload = function(event) {
+                originalImage = event.target.result;
+                cropImage.src = originalImage;
                 
-                // Update upload section
-                uploadSection.innerHTML = `
+                // Show crop section
+                cropSection.style.display = 'block';
+                autoDetect.style.display = 'block';
+                
+                // Update upload area
+                uploadArea.innerHTML = `
                     <div class="upload-icon">✅</div>
                     <div class="upload-text">
                         <h3 style="color: #00ff88;">Mockup اپ لوڈ ہو گیا!</h3>
-                        <p>اب "ڈیزائن الگ کریں" بٹن دبائیں</p>
-                        <p style="color: #888; margin-top: 10px;">${file.name} (${(file.size/1024/1024).toFixed(2)} MB)</p>
+                        <p>اب ڈیزائن کا حصہ منتخب کریں</p>
                     </div>
                 `;
                 
-                // Scroll to preview
-                previewContainer.scrollIntoView({ behavior: 'smooth' });
+                // Initialize crop box
+                initCropBox();
+                
+                // Scroll to crop section
+                cropSection.scrollIntoView({ behavior: 'smooth' });
             };
             reader.readAsDataURL(file);
         }
 
-        // Process Button
-        processBtn.addEventListener('click', async () => {
-            if (!uploadedImage) return;
-
-            // Show loader
-            loader.style.display = 'block';
-            processBtn.disabled = true;
-            processBtn.textContent = '⚡ AI کام کر رہا ہے...';
-
-            try {
-                // Extract design using advanced algorithm
-                const extractedDesign = await extractDesign(uploadedImage);
-                
-                // Show results
-                document.getElementById('originalImage').src = uploadedImage;
-                document.getElementById('extractedDesign').src = extractedDesign;
-                document.getElementById('downloadBtn').href = extractedDesign;
-                document.getElementById('downloadBtn').download = 'extracted_design.png';
-                
-                resultsSection.style.display = 'block';
-                loader.style.display = 'none';
-                
-                // Scroll to results
-                resultsSection.scrollIntoView({ behavior: 'smooth' });
-                
-                // Reset button
-                processBtn.textContent = '🚀 ڈیزائن الگ کریں';
-                processBtn.disabled = false;
-
-            } catch (error) {
-                alert('خرابی: ' + error.message);
-                loader.style.display = 'none';
-                processBtn.textContent = '🚀 ڈیزائن الگ کریں';
-                processBtn.disabled = false;
-            }
-        });
-
-        // Advanced Design Extraction Algorithm
-        async function extractDesign(imageDataUrl) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Set canvas size
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    
-                    // Draw original image
-                    ctx.drawImage(img, 0, 0);
-                    
-                    // Get image data
-                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const data = imageData.data;
-                    
-                    // Step 1: Detect edges
-                    const edges = detectEdges(data, canvas.width, canvas.height);
-                    
-                    // Step 2: Find design area
-                    const designMask = findDesignArea(data, edges, canvas.width, canvas.height);
-                    
-                    // Step 3: Remove background
-                    removeBackground(data, designMask);
-                    
-                    // Step 4: Enhance design
-                    enhanceDesign(data, designMask);
-                    
-                    // Step 5: Clean up
-                    cleanupImage(data, canvas.width, canvas.height);
-                    
-                    // Put modified data back
-                    ctx.putImageData(imageData, 0, 0);
-                    
-                    // Convert to transparent PNG
-                    const result = canvas.toDataURL('image/png');
-                    resolve(result);
-                };
-                
-                img.onerror = reject;
-                img.src = imageDataUrl;
-            });
+        // Initialize crop box
+        function initCropBox() {
+            // Set initial position and size
+            cropBox.style.left = cropBoxX + 'px';
+            cropBox.style.top = cropBoxY + 'px';
+            cropBox.style.width = cropBoxWidth + 'px';
+            cropBox.style.height = cropBoxHeight + 'px';
+            cropBox.style.display = 'block';
         }
 
-        // Edge detection using Sobel operator
-        function detectEdges(data, width, height) {
-            const edges = new Uint8Array(width * height);
+        // Mouse events for cropping
+        cropImage.addEventListener('mousedown', startDrag);
+        cropBox.addEventListener('mousedown', startBoxDrag);
+
+        function startDrag(e) {
+            if (e.target === cropImage) {
+                isDragging = true;
+                startX = e.clientX - cropBox.offsetLeft;
+                startY = e.clientY - cropBox.offsetTop;
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+        }
+
+        function startBoxDrag(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            document.addEventListener('mousemove', dragBox);
+            document.addEventListener('mouseup', stopDrag);
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
             
-            // Sobel kernels
-            const sobelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
-            const sobelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+            const containerRect = cropContainer.getBoundingClientRect();
+            const x = e.clientX - containerRect.left - startX;
+            const y = e.clientY - containerRect.top - startY;
             
-            for (let y = 1; y < height - 1; y++) {
-                for (let x = 1; x < width - 1; x++) {
-                    let pixelX = 0;
-                    let pixelY = 0;
+            // Keep crop box within container
+            const maxX = containerRect.width - cropBoxWidth;
+            const maxY = containerRect.height - cropBoxHeight;
+            
+            cropBoxX = Math.max(0, Math.min(x, maxX));
+            cropBoxY = Math.max(0, Math.min(y, maxY));
+            
+            cropBox.style.left = cropBoxX + 'px';
+            cropBox.style.top = cropBoxY + 'px';
+        }
+
+        function dragBox(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            const containerRect = cropContainer.getBoundingClientRect();
+            const newX = cropBoxX + dx;
+            const newY = cropBoxY + dy;
+            
+            // Keep crop box within container
+            const maxX = containerRect.width - cropBoxWidth;
+            const maxY = containerRect.height - cropBoxHeight;
+            
+            cropBoxX = Math.max(0, Math.min(newX, maxX));
+            cropBoxY = Math.max(0, Math.min(newY, maxY));
+            
+            cropBox.style.left = cropBoxX + 'px';
+            cropBox.style.top = cropBoxY + 'px';
+            
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mousemove', dragBox);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // Resize handles
+        const handles = cropBox.querySelectorAll('.crop-handle');
+        handles.forEach(handle => {
+            handle.addEventListener('mousedown', startResize);
+        });
+
+        function startResize(e) {
+            e.stopPropagation();
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            document.addEventListener('mousemove', resize);
+            document.addEventListener('mouseup', stopResize);
+        }
+
+        function resize(e) {
+            if (!isResizing) return;
+            
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            const containerRect = cropContainer.getBoundingClientRect();
+            const newWidth = Math.max(50, cropBoxWidth + dx);
+            const newHeight = Math.max(50, cropBoxHeight + dy);
+            
+            // Keep within container
+            const maxWidth = containerRect.width - cropBoxX;
+            const maxHeight = containerRect.height - cropBoxY;
+            
+            cropBoxWidth = Math.min(newWidth, maxWidth);
+            cropBoxHeight = Math.min(newHeight, maxHeight);
+            
+            cropBox.style.width = cropBoxWidth + 'px';
+            cropBox.style.height = cropBoxHeight + 'px';
+            
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+
+        function stopResize() {
+            isResizing = false;
+            document.removeEventListener('mousemove', resize);
+            document.removeEventListener('mouseup', stopResize);
+        }
+
+        // Auto detect design
+        autoDetectBtn.addEventListener('click', function() {
+            // Simple auto-detection algorithm
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                
+                // Find non-background area
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const edges = findEdges(imageData);
+                const bounds = findDesignBounds(edges);
+                
+                if (bounds) {
+                    // Position crop box on design
+                    const scaleX = cropImage.width / img.width;
+                    const scaleY = cropImage.height / img.height;
                     
-                    // Apply Sobel operator
-                    for (let ky = -1; ky <= 1; ky++) {
-                        for (let kx = -1; kx <= 1; kx++) {
-                            const idx = ((y + ky) * width + (x + kx)) * 4;
-                            const gray = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-                            
-                            const kernelIdx = (ky + 1) * 3 + (kx + 1);
-                            pixelX += gray * sobelX[kernelIdx];
-                            pixelY += gray * sobelY[kernelIdx];
-                        }
-                    }
+                    cropBoxX = bounds.x * scaleX;
+                    cropBoxY = bounds.y * scaleY;
+                    cropBoxWidth = bounds.width * scaleX;
+                    cropBoxHeight = bounds.height * scaleY;
                     
-                    const magnitude = Math.sqrt(pixelX * pixelX + pixelY * pixelY);
-                    edges[y * width + x] = magnitude > 50 ? 255 : 0;
+                    cropBox.style.left = cropBoxX + 'px';
+                    cropBox.style.top = cropBoxY + 'px';
+                    cropBox.style.width = cropBoxWidth + 'px';
+                    cropBox.style.height = cropBoxHeight + 'px';
+                    
+                    alert('✅ ڈیزائن خودکار ڈھونڈ لیا گیا ہے!');
+                } else {
+                    alert('⚠️ ڈیزائن نہیں ملا، براہ کرم خود منتخب کریں');
+                }
+            };
+            img.src = originalImage;
+        });
+
+        function findEdges(imageData) {
+            const edges = [];
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+                    
+                    // Check if pixel is significantly different from background
+                    const isBackground = (
+                        (r > 200 && g > 200 && b > 200) || // Light
+                        (r < 50 && g < 50 && b < 50) ||    // Dark
+                        Math.abs(r - g) < 30 && Math.abs(g - b) < 30 // Gray
+                    );
+                    
+                    edges.push(!isBackground);
                 }
             }
-            
             return edges;
         }
 
-        // Find design area using flood fill from edges
-        function findDesignArea(data, edges, width, height) {
-            const mask = new Uint8Array(width * height);
-            const visited = new Uint8Array(width * height);
+        function findDesignBounds(edges) {
+            const width = cropImage.naturalWidth;
+            const height = cropImage.naturalHeight;
             
-            // Find starting points (strong edges)
-            const seeds = [];
+            let minX = width, minY = height, maxX = 0, maxY = 0;
+            let found = false;
+            
             for (let y = 0; y < height; y++) {
                 for (let x = 0; x < width; x++) {
-                    if (edges[y * width + x] > 200) {
-                        seeds.push({ x, y });
+                    if (edges[y * width + x]) {
+                        found = true;
+                        minX = Math.min(minX, x);
+                        minY = Math.min(minY, y);
+                        maxX = Math.max(maxX, x);
+                        maxY = Math.max(maxY, y);
                     }
                 }
             }
             
-            // Flood fill from edges
-            const stack = [...seeds];
-            while (stack.length > 0) {
-                const { x, y } = stack.pop();
-                const idx = y * width + x;
-                
-                if (visited[idx] || x < 0 || x >= width || y < 0 || y >= height) {
-                    continue;
-                }
-                
-                visited[idx] = 1;
-                mask[idx] = 255;
-                
-                // Check if pixel is part of design (not background)
-                const pixelIdx = idx * 4;
-                const r = data[pixelIdx];
-                const g = data[pixelIdx + 1];
-                const b = data[pixelIdx + 2];
-                
-                // Design pixels are usually different from background
-                const isDesign = !isBackgroundColor(r, g, b);
-                
-                if (isDesign) {
-                    // Add neighbors
-                    stack.push({ x: x - 1, y });
-                    stack.push({ x: x + 1, y });
-                    stack.push({ x, y: y - 1 });
-                    stack.push({ x, y: y + 1 });
-                }
+            if (found) {
+                // Add some padding
+                const padding = 10;
+                return {
+                    x: Math.max(0, minX - padding),
+                    y: Math.max(0, minY - padding),
+                    width: Math.min(width, maxX - minX + padding * 2),
+                    height: Math.min(height, maxY - minY + padding * 2)
+                };
             }
-            
-            return mask;
+            return null;
         }
 
-        // Remove background based on mask
-        function removeBackground(data, mask) {
-            for (let i = 0; i < mask.length; i++) {
-                if (mask[i] === 0) {
-                    // This is background, make transparent
-                    const dataIdx = i * 4;
-                    data[dataIdx + 3] = 0;
-                }
-            }
-        }
-
-        // Enhance design colors
-        function enhanceDesign(data, mask) {
-            for (let i = 0; i < mask.length; i++) {
-                if (mask[i] > 0) {
-                    const idx = i * 4;
-                    
-                    // Increase contrast
-                    data[idx] = Math.min(255, data[idx] * 1.2);     // Red
-                    data[idx + 1] = Math.min(255, data[idx + 1] * 1.2); // Green
-                    data[idx + 2] = Math.min(255, data[idx + 2] * 1.2); // Blue
-                }
-            }
-        }
-
-        // Clean up image
-        function cleanupImage(data, width, height) {
-            // Remove isolated pixels
-            for (let y = 1; y < height - 1; y++) {
-                for (let x = 1; x < width - 1; x++) {
-                    const idx = (y * width + x) * 4;
-                    
-                    if (data[idx + 3] > 0) {
-                        // Check neighbors
-                        let neighborCount = 0;
-                        for (let dy = -1; dy <= 1; dy++) {
-                            for (let dx = -1; dx <= 1; dx++) {
-                                if (dx === 0 && dy === 0) continue;
-                                
-                                const nIdx = ((y + dy) * width + (x + dx)) * 4;
-                                if (data[nIdx + 3] > 0) {
-                                    neighborCount++;
-                                }
-                            }
-                        }
-                        
-                        // Remove isolated pixel
-                        if (neighborCount < 2) {
-                            data[idx + 3] = 0;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Check if color is background
-        function isBackgroundColor(r, g, b) {
-            // Common background colors (white, black, gray)
-            const isWhite = r > 200 && g > 200 && b > 200;
-            const isBlack = r < 50 && g < 50 && b < 50;
-            const isGray = Math.abs(r - g) < 30 && Math.abs(g - b) < 30;
-            
-            return isWhite || isBlack || isGray;
-        }
+        // Crop button
+        cropBtn.addEventListener('click', function() {
+            const img = new Image();
+            img.onload = function() {
+                // Calculate scaling
+                const scaleX = img.width / cropImage.width;
+                const scaleY = img.height / cropImage.height;
+                
+                // Calculate crop coordinates
+                const cropX = cropBoxX * scaleX;
+                const cropY = cropBoxY * scaleY;
+                const cropW = cropBoxWidth * scaleX;
+                const cropH = cropBoxHeight * scaleY;
+                
+                // Create canvas for cropped image
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = cropW;
+                canvas.height = cropH;
+                
+                // Draw only the cropped portion
+                ctx.drawImage(
+                    img,
+                    cropX, cropY, cropW, cropH, // Source
+                    0, 0, cropW, cropH          // Destination
+                );
+                
+                // Convert to data URL
+                const croppedDataUrl = canvas.toDataURL('image/png');
+                
+                // Show result
+                resultDesign.src = croppedDataUrl;
+                resultSection.style.display = 'block';
+                downloadBtn.href = croppedDataUrl;
+                downloadBtn.download = 'design_only.png';
+                
+                // Scroll to result
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            };
+            img.src = originalImage;
+        });
 
         // Reset app
         function resetApp() {
-            uploadedImage = null;
-            previewContainer.style.display = 'none';
-            resultsSection.style.display = 'none';
-            loader.style.display = 'none';
-            processBtn.disabled = true;
-            processBtn.textContent = '🚀 ڈیزائن الگ کریں';
+            // Reset everything
+            originalImage = null;
+            cropSection.style.display = 'none';
+            resultSection.style.display = 'none';
+            autoDetect.style.display = 'none';
             fileInput.value = '';
             
-            // Reset upload section
-            uploadSection.innerHTML = `
+            // Reset upload area
+            uploadArea.innerHTML = `
                 <div class="upload-icon">📤</div>
                 <div class="upload-text">
                     <h3>Mockup اپ لوڈ کریں</h3>
-                    <p>کلک کریں یا تصویر ڈریگ اینڈ ڈراپ کریں</p>
-                    <p style="color: #888; margin-top: 10px;">PNG, JPG, JPEG (Max 10MB)</p>
+                    <p>اپنی T-shirt/Mug/Bottle کی تصویر اپ لوڈ کریں</p>
+                    <p style="color: #8a8a8a; margin-top: 10px;">PNG, JPG, JPEG</p>
                 </div>
             `;
             
-            uploadSection.style.borderColor = '';
-            uploadSection.style.background = '';
+            // Reset crop box
+            cropBoxX = 100;
+            cropBoxY = 100;
+            cropBoxWidth = 200;
+            cropBoxHeight = 200;
+            cropBox.style.display = 'none';
         }
 
         // Welcome message
-        setTimeout(() => {
-            alert(`🎨 Auto Design Extractor میں خوش آمدید!
+        window.onload = function() {
+            setTimeout(() => {
+                alert(`✂️ Design Only Extractor میں خوش آمدید!
 
-🚀 استعمال کرنے کا طریقہ:
-1. کوئی بھی Mockup اپ لوڈ کریں (T-shirt, Mug, Bottle, etc.)
-2. "ڈیزائن الگ کریں" بٹن دبائیں
-3. AI خودکار طور پر ڈیزائن الگ کر دے گا
+🎯 یہ ٹول صرف ڈیزائن/لوگو نکالتا ہے:
+1. Mockup اپ لوڈ کریں
+2. ڈیزائن کا حصہ منتخب کریں (یا خودکار ڈھونڈیں)
+3. صرف ڈیزائن کاٹیں
 4. PNG ڈاؤن لوڈ کریں
 
-✅ No API Key Required
-✅ 100% Free
-✅ Offline کام کرتا ہے
-
-اب آپ کوشش کریں!`);
-        }, 1000);
+مثال: T-shirt سے صرف لوگو نکالیں، پوری T-shirt نہیں`);
+            }, 1000);
+        };
     </script>
 </body>
 </html>
