@@ -3,201 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Mockup Enhancer - Free</title>
+    <title>AI Texture Transfer - Mockup to New Texture</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
         }
 
         .header h1 {
-            color: #333;
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             margin-bottom: 10px;
+            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .header p {
-            color: #666;
+            color: #aaa;
             font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
         }
 
         /* Upload Section */
-        .upload-area {
-            border: 3px dashed #6a11cb;
-            border-radius: 15px;
-            padding: 50px 20px;
-            text-align: center;
-            cursor: pointer;
-            margin-bottom: 30px;
-            transition: all 0.3s;
-            background: #f8f9ff;
+        .upload-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
         }
 
-        .upload-area:hover {
-            border-color: #2575fc;
-            background: #f0f2ff;
+        .upload-box {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            border: 2px dashed rgba(255,255,255,0.2);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .upload-box:hover {
+            border-color: #00dbde;
             transform: translateY(-5px);
+            background: rgba(0,0,0,0.4);
         }
 
         .upload-icon {
             font-size: 60px;
-            color: #6a11cb;
             margin-bottom: 20px;
+            color: #00dbde;
         }
 
-        .upload-text {
-            font-size: 1.2rem;
-            color: #555;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        /* Preview */
-        .preview-container {
-            display: none;
-            margin-bottom: 30px;
-        }
-
-        .preview-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
+        .upload-title {
             font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: white;
         }
 
-        .image-preview {
-            max-width: 100%;
-            max-height: 300px;
-            margin: 0 auto;
-            display: block;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .upload-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
         }
 
-        /* Controls */
-        .controls {
+        .file-info {
+            color: #00ff88;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        /* Texture Selection */
+        .texture-selection {
+            margin-bottom: 40px;
+        }
+
+        .texture-title {
             text-align: center;
-            margin-bottom: 30px;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: white;
         }
 
-        .enhance-btn {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        .texture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .texture-item {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .texture-item:hover {
+            transform: scale(1.05);
+            border-color: #00dbde;
+        }
+
+        .texture-item.selected {
+            border-color: #fc00ff;
+            box-shadow: 0 0 20px rgba(252,0,255,0.5);
+        }
+
+        .texture-preview {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .texture-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Custom Texture */
+        .custom-texture {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .custom-btn {
+            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .custom-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,219,222,0.4);
+        }
+
+        /* Process Button */
+        .process-section {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .process-btn {
+            background: linear-gradient(90deg, #00b09b 0%, #96c93d 100%);
+            color: white;
+            border: none;
+            padding: 18px 60px;
+            font-size: 1.3rem;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: bold;
+            letter-spacing: 1px;
         }
 
-        .enhance-btn:hover {
+        .process-btn:hover:not(:disabled) {
             transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(106, 17, 203, 0.4);
+            box-shadow: 0 10px 30px rgba(0,176,155,0.4);
         }
 
-        .enhance-btn:disabled {
+        .process-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        /* Result */
-        .result-container {
+        /* Result Section */
+        .result-section {
             display: none;
-            margin-top: 30px;
-            background: #f8f9ff;
-            padding: 20px;
-            border-radius: 15px;
+            margin-top: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .result-title {
             text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: white;
         }
 
-        .comparison {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            flex-wrap: wrap;
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
         }
 
-        .image-box {
-            flex: 1;
-            min-width: 300px;
+        .result-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
             text-align: center;
         }
 
-        .image-box h4 {
-            color: #6a11cb;
-            margin-bottom: 10px;
+        .result-box h3 {
+            margin-bottom: 15px;
+            color: #00dbde;
+            font-size: 1.3rem;
         }
 
         .result-image {
             width: 100%;
+            max-height: 400px;
+            object-fit: contain;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+        }
+
+        /* Download Options */
+        .download-options {
+            text-align: center;
+            margin-top: 30px;
         }
 
         .download-btn {
             display: inline-block;
-            background: #00b894;
+            background: linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%);
             color: white;
-            padding: 12px 30px;
+            padding: 15px 40px;
             border-radius: 50px;
             text-decoration: none;
-            margin-top: 20px;
             font-weight: bold;
+            margin: 10px;
             transition: all 0.3s;
         }
 
         .download-btn:hover {
-            background: #00a085;
             transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255,65,108,0.4);
         }
 
         /* Loading */
         .loader {
             display: none;
             text-align: center;
-            margin: 20px 0;
+            margin: 30px 0;
+        }
+
+        .loader-text {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #00dbde;
         }
 
         .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #6a11cb;
+            border: 5px solid rgba(255,255,255,0.1);
+            border-top: 5px solid #00dbde;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
+            margin: 0 auto;
         }
 
         @keyframes spin {
@@ -205,58 +309,65 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Features */
-        .features {
-            margin-top: 40px;
+        /* How it works */
+        .instructions {
+            margin-top: 50px;
+            padding: 30px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
         }
 
-        .features h2 {
+        .instructions h2 {
             text-align: center;
-            color: #333;
             margin-bottom: 30px;
+            color: white;
         }
 
-        .feature-grid {
+        .steps {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
         }
 
-        .feature {
+        .step {
             text-align: center;
             padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .feature-icon {
-            font-size: 40px;
+        .step-number {
+            background: linear-gradient(90deg, #00dbde 0%, #fc00ff 100%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+        }
+
+        .step h3 {
             margin-bottom: 10px;
+            color: #00dbde;
         }
 
-        .feature h3 {
-            color: #6a11cb;
-            margin-bottom: 10px;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            color: #666;
+        .step p {
+            color: #aaa;
             font-size: 0.9rem;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .comparison {
+            .upload-section {
                 flex-direction: column;
             }
-            .image-box {
+            
+            .upload-box {
                 min-width: 100%;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -265,246 +376,455 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>🎨 AI Mockup Enhancer</h1>
-            <p>کوئی بھی تصویر اپ لوڈ کریں، ہائی کوالٹی ورژن فری حاصل کریں</p>
+            <h1>🎨 AI Texture Transfer</h1>
+            <p>کسی بھی Mockup کی Texture الگ کریں اور نئی Texture میں اپنے ڈیزائن کو ڈالیں۔ T-shirt، مگ، فون کور، یا کسی بھی پراڈکٹ کا ڈیزائن تبدیل کریں۔</p>
         </div>
 
-        <!-- Upload Area -->
-        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">
-                <h3>تصویر اپ لوڈ کریں</h3>
-                <p>کلک کریں یا تصویر کو یہاں ڈریگ کریں</p>
-                <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">PNG, JPG, JPEG (Max: 10MB)</p>
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <!-- Mockup Upload -->
+            <div class="upload-box" id="mockupUpload" onclick="document.getElementById('mockupInput').click()">
+                <div class="upload-icon">📱</div>
+                <div class="upload-title">1. Mockup اپ لوڈ کریں</div>
+                <div class="upload-desc">اپنی پراڈکٹ کی تصویر اپ لوڈ کریں (T-shirt, Bottle, Mug, Phone case, etc.)</div>
+                <div id="mockupInfo" class="file-info"></div>
+            </div>
+            <input type="file" id="mockupInput" accept="image/*" style="display: none">
+
+            <!-- Design Upload -->
+            <div class="upload-box" id="designUpload" onclick="document.getElementById('designInput').click()">
+                <div class="upload-icon">🎨</div>
+                <div class="upload-title">2. ڈیزائن اپ لوڈ کریں (اختیاری)</div>
+                <div class="upload-desc">نیا ڈیزائن/لوگو/ٹیکسٹ اپ لوڈ کریں۔ اگر نہیں تو اصل ڈیزائن ہی استعمال ہوگا</div>
+                <div id="designInfo" class="file-info"></div>
+            </div>
+            <input type="file" id="designInput" accept="image/*" style="display: none">
+        </div>
+
+        <!-- Texture Selection -->
+        <div class="texture-selection">
+            <div class="texture-title">3. نئی Texture منتخب کریں</div>
+            
+            <div class="texture-grid" id="textureGrid">
+                <!-- Textures will be added by JavaScript -->
+            </div>
+            
+            <div class="custom-texture">
+                <button class="custom-btn" onclick="document.getElementById('textureInput').click()">
+                    + اپنی Texture اپ لوڈ کریں
+                </button>
+                <input type="file" id="textureInput" accept="image/*" style="display: none">
+                <div id="customTextureInfo" class="file-info" style="margin-top: 10px;"></div>
             </div>
         </div>
-        <input type="file" id="fileInput" accept="image/*">
 
-        <!-- Preview -->
-        <div class="preview-container" id="previewContainer">
-            <div class="preview-title">آپ کی تصویر:</div>
-            <img id="imagePreview" class="image-preview" alt="Uploaded Image">
+        <!-- Process Button -->
+        <div class="process-section">
+            <button class="process-btn" id="processBtn" disabled>🚀 Texture Transfer شروع کریں</button>
         </div>
 
         <!-- Loading -->
         <div class="loader" id="loader">
+            <div class="loader-text">AI Texture Transfer کر رہا ہے... براہ کرم انتظار کریں</div>
             <div class="spinner"></div>
-            <p>AI تصویر کو بہتر بنا رہا ہے... براہ کرم انتظار کریں</p>
-        </div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <button class="enhance-btn" id="enhanceBtn" disabled>🚀 ہائی کوالٹی بنائیں</button>
-        </div>
-
-        <!-- Result -->
-        <div class="result-container" id="resultContainer">
-            <div class="result-title">نتیجہ:</div>
-            <div class="comparison">
-                <div class="image-box">
-                    <h4>اصل تصویر</h4>
-                    <img id="originalImage" class="result-image" alt="Original">
-                </div>
-                <div class="image-box">
-                    <h4>بہتر شدہ تصویر</h4>
-                    <img id="enhancedImage" class="result-image" alt="Enhanced">
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="#" id="downloadLink" class="download-btn" download>📥 ڈاؤن لوڈ کریں</a>
+            <div style="margin-top: 20px; color: #aaa;">
+                یہ عمل 10-30 سیکنڈ لگ سکتا ہے<br>
+                ہم آپ کے ڈیزائن کو نئی Texture میں منتقل کر رہے ہیں
             </div>
         </div>
 
-        <!-- Features -->
-        <div class="features">
-            <h2>✨ خصوصیات</h2>
-            <div class="feature-grid">
-                <div class="feature">
-                    <div class="feature-icon">🖼️</div>
-                    <h3>ہائی ریزولوشن</h3>
-                    <p>4x بہتر کوالٹی</p>
+        <!-- Result Section -->
+        <div class="result-section" id="resultSection">
+            <div class="result-title">🎉 آپ کا نتیجہ تیار ہے!</div>
+            
+            <div class="result-grid">
+                <div class="result-box">
+                    <h3>اصل Mockup</h3>
+                    <img id="originalMockup" class="result-image" alt="Original Mockup">
                 </div>
-                <div class="feature">
-                    <div class="feature-icon">🎨</div>
-                    <h3>رنگ محفوظ</h3>
-                    <p>اصل رنگ برقرار</p>
+                
+                <div class="result-box">
+                    <h3>نئی Texture</h3>
+                    <img id="selectedTexture" class="result-image" alt="Selected Texture">
                 </div>
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <h3>تیز پروسیسنگ</h3>
-                    <p>AI ٹیکنالوجی</p>
+                
+                <div class="result-box">
+                    <h3>نتیجہ (Texture Transfer)</h3>
+                    <img id="finalResult" class="result-image" alt="Final Result">
                 </div>
-                <div class="feature">
-                    <div class="feature-icon">💯</div>
-                    <h3>مکمل فری</h3>
-                    <p>کوئی چارج نہیں</p>
-                </div>
+            </div>
+            
+            <div class="download-options">
+                <a href="#" id="downloadPNG" class="download-btn">📥 PNG ڈاؤن لوڈ کریں</a>
+                <a href="#" id="downloadJPG" class="download-btn">📥 JPG ڈاؤن لوڈ کریں</a>
+                <button class="download-btn" onclick="resetApp()">🔄 نیا ٹرانسفر کریں</button>
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p>© 2024 AI Mockup Enhancer | تمام حقوق محفوظ ہیں</p>
-            <p style="font-size: 0.8rem; margin-top: 5px;">یہ ایک ڈیمو ویب ایپ ہے۔ اصلی AI پروسیسنگ کے لیے API کی ضرورت ہوتی ہے۔</p>
+        <!-- How it works -->
+        <div class="instructions">
+            <h2>🔧 یہ کیسے کام کرتا ہے؟</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Mockup اپ لوڈ</h3>
+                    <p>AI آپ کی پراڈکٹ کی تصویر سے ڈیزائن اور Texture کو الگ کرتا ہے</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Texture منتخب</h3>
+                    <p>نیا مواد منتخب کریں (چمڑا، کپڑا، لکڑی، دھات وغیرہ)</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>AI پروسیسنگ</h3>
+                    <p>ہمارا AI آپ کے ڈیزائن کو نئی Texture پر لاگو کرتا ہے</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>نتیجہ حاصل</h3>
+                    <p>اپنے ڈیزائن کی نئی Texture والی تصویر ڈاؤن لوڈ کریں</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // DOM Elements
-        const fileInput = document.getElementById('fileInput');
-        const uploadArea = document.getElementById('uploadArea');
-        const previewContainer = document.getElementById('previewContainer');
-        const imagePreview = document.getElementById('imagePreview');
-        const enhanceBtn = document.getElementById('enhanceBtn');
+        // Elements
+        const mockupInput = document.getElementById('mockupInput');
+        const designInput = document.getElementById('designInput');
+        const textureInput = document.getElementById('textureInput');
+        const processBtn = document.getElementById('processBtn');
         const loader = document.getElementById('loader');
-        const resultContainer = document.getElementById('resultContainer');
-        const originalImage = document.getElementById('originalImage');
-        const enhancedImage = document.getElementById('enhancedImage');
-        const downloadLink = document.getElementById('downloadLink');
+        const resultSection = document.getElementById('resultSection');
+        const textureGrid = document.getElementById('textureGrid');
+        
+        // State
+        let mockupImage = null;
+        let designImage = null;
+        let selectedTexture = null;
+        let selectedTextureUrl = null;
+        
+        // Sample Textures (Base64 encoded - actual app would use real textures)
+        const sampleTextures = [
+            { name: "چمڑا", color: "#8B4513", pattern: "leather" },
+            { name: "روئی کا کپڑا", color: "#F5F5DC", pattern: "cotton" },
+            { name: "ریشم", color: "#FFD700", pattern: "silk" },
+            { name: "لکڑی", color: "#DEB887", pattern: "wood" },
+            { name: "دھات", color: "#C0C0C0", pattern: "metal" },
+            { name: "سلیٹ", color: "#708090", pattern: "slate" },
+            { name: "کنویں", color: "#000000", pattern: "canvas" },
+            { name: "سفید کاغذ", color: "#FFFFFF", pattern: "paper" },
+            { name: "نیٹ", color: "#87CEEB", pattern: "net" },
+            { name: "شیشہ", color: "#ADD8E6", pattern: "glass" },
+            { name: "پتھر", color: "#696969", pattern: "stone" },
+            { name: "کارپٹ", color: "#D2691E", pattern: "carpet" }
+        ];
 
-        let uploadedImage = null;
+        // Initialize texture grid
+        function initTextures() {
+            textureGrid.innerHTML = '';
+            sampleTextures.forEach((texture, index) => {
+                const textureItem = document.createElement('div');
+                textureItem.className = 'texture-item';
+                textureItem.innerHTML = `
+                    <div class="texture-preview" style="background: linear-gradient(45deg, ${texture.color} 25%, transparent 25%), 
+                    linear-gradient(-45deg, ${texture.color} 25%, transparent 25%), 
+                    linear-gradient(45deg, transparent 75%, ${texture.color} 75%), 
+                    linear-gradient(-45deg, transparent 75%, ${texture.color} 75%);
+                    background-size: 20px 20px;
+                    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;"></div>
+                    <div class="texture-name">${texture.name}</div>
+                `;
+                
+                textureItem.addEventListener('click', () => {
+                    document.querySelectorAll('.texture-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    textureItem.classList.add('selected');
+                    selectedTexture = texture.pattern;
+                    selectedTextureUrl = textureItem.querySelector('.texture-preview').style.background;
+                    updateProcessButton();
+                });
+                
+                textureGrid.appendChild(textureItem);
+            });
+        }
 
-        // File Upload Handler
-        fileInput.addEventListener('change', function(e) {
+        // File upload handlers
+        mockupInput.addEventListener('change', handleMockupUpload);
+        designInput.addEventListener('change', handleDesignUpload);
+        textureInput.addEventListener('change', handleTextureUpload);
+
+        function handleMockupUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
-
+            
             if (!file.type.startsWith('image/')) {
                 alert('براہ کرم صرف تصویری فائل اپ لوڈ کریں!');
                 return;
             }
-
-            if (file.size > 10 * 1024 * 1024) {
-                alert('فائل سائز 10MB سے زیادہ نہیں ہونا چاہیے!');
-                return;
-            }
-
+            
             const reader = new FileReader();
             reader.onload = function(event) {
-                uploadedImage = event.target.result;
-                
-                // Update UI
-                imagePreview.src = uploadedImage;
-                previewContainer.style.display = 'block';
-                enhanceBtn.disabled = false;
-                
-                // Update upload area text
-                uploadArea.innerHTML = `
-                    <div class="upload-icon">✅</div>
-                    <div class="upload-text">
-                        <h3>تصویر اپ لوڈ ہو گئی!</h3>
-                        <p style="color: green;">${file.name}</p>
-                        <p style="font-size: 0.9rem; color: #888; margin-top: 10px;">
-                            سائز: ${(file.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                    </div>
-                `;
+                mockupImage = event.target.result;
+                document.getElementById('mockupInfo').textContent = `✅ ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`;
+                document.getElementById('mockupUpload').style.borderColor = '#00ff88';
+                updateProcessButton();
             };
             reader.readAsDataURL(file);
-        });
+        }
 
-        // Drag and Drop
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#2575fc';
-            uploadArea.style.background = '#e6e9ff';
-        });
-
-        uploadArea.addEventListener('dragleave', function() {
-            uploadArea.style.borderColor = '#6a11cb';
-            uploadArea.style.background = '#f8f9ff';
-        });
-
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadArea.style.borderColor = '#6a11cb';
-            uploadArea.style.background = '#f8f9ff';
+        function handleDesignUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
             
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                fileInput.files = e.dataTransfer.files;
-                const event = new Event('change');
-                fileInput.dispatchEvent(event);
-            }
-        });
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                designImage = event.target.result;
+                document.getElementById('designInfo').textContent = `✅ ${file.name}`;
+                document.getElementById('designUpload').style.borderColor = '#00ff88';
+            };
+            reader.readAsDataURL(file);
+        }
 
-        // Enhance Image Function
-        enhanceBtn.addEventListener('click', async function() {
-            if (!uploadedImage) return;
+        function handleTextureUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Create custom texture item
+                const textureItem = document.createElement('div');
+                textureItem.className = 'texture-item selected';
+                textureItem.innerHTML = `
+                    <img src="${event.target.result}" class="texture-preview" alt="Custom Texture">
+                    <div class="texture-name">اپنی Texture</div>
+                `;
+                
+                textureItem.addEventListener('click', () => {
+                    document.querySelectorAll('.texture-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    textureItem.classList.add('selected');
+                    selectedTexture = 'custom';
+                    selectedTextureUrl = event.target.result;
+                    updateProcessButton();
+                });
+                
+                textureGrid.appendChild(textureItem);
+                document.getElementById('customTextureInfo').textContent = `✅ ${file.name}`;
+            };
+            reader.readAsDataURL(file);
+        }
 
+        function updateProcessButton() {
+            processBtn.disabled = !(mockupImage && selectedTexture);
+        }
+
+        // Process button handler
+        processBtn.addEventListener('click', async function() {
+            if (!mockupImage || !selectedTexture) return;
+            
             // Show loader
             loader.style.display = 'block';
-            enhanceBtn.disabled = true;
-            enhanceBtn.textContent = 'پروسیسنگ...';
-
-            // Simulate AI processing (In real app, you would call an API)
+            processBtn.disabled = true;
+            
+            // Simulate AI processing
             setTimeout(async () => {
                 try {
-                    // Create enhanced version (simulated)
-                    const enhancedDataUrl = await simulateEnhancement(uploadedImage);
+                    // Create texture transfer result
+                    const result = await simulateTextureTransfer(mockupImage, selectedTextureUrl, designImage);
                     
                     // Update result section
-                    originalImage.src = uploadedImage;
-                    enhancedImage.src = enhancedDataUrl;
-                    downloadLink.href = enhancedDataUrl;
-                    downloadLink.download = 'enhanced_image.png';
+                    document.getElementById('originalMockup').src = mockupImage;
+                    document.getElementById('selectedTexture').src = selectedTextureUrl || createTextureImage(selectedTexture);
+                    document.getElementById('finalResult').src = result;
+                    
+                    // Set download links
+                    document.getElementById('downloadPNG').href = result;
+                    document.getElementById('downloadPNG').download = 'texture_transfer_result.png';
+                    document.getElementById('downloadJPG').href = result; // In real app, convert to JPG
+                    document.getElementById('downloadJPG').download = 'texture_transfer_result.jpg';
                     
                     // Show result
-                    resultContainer.style.display = 'block';
+                    resultSection.style.display = 'block';
+                    loader.style.display = 'none';
                     
                     // Scroll to result
-                    resultContainer.scrollIntoView({ behavior: 'smooth' });
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
                     
                 } catch (error) {
                     alert('خرابی: ' + error.message);
-                } finally {
-                    // Hide loader
                     loader.style.display = 'none';
-                    enhanceBtn.disabled = false;
-                    enhanceBtn.textContent = '🚀 ہائی کوالٹی بنائیں';
+                    processBtn.disabled = false;
                 }
-            }, 2000); // 2 second simulation
+            }, 3000); // Simulate 3 second processing
         });
 
-        // Simulate AI Enhancement (Demo only - uses canvas for fake enhancement)
-        function simulateEnhancement(imageDataUrl) {
+        // Simulate texture transfer (Demo only)
+        function simulateTextureTransfer(mockupDataUrl, textureDataUrl, designDataUrl) {
             return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = function() {
+                const mockupImg = new Image();
+                mockupImg.onload = function() {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
                     
-                    // Increase resolution (simulate 2x enhancement)
-                    canvas.width = img.width * 2;
-                    canvas.height = img.height * 2;
+                    // Set canvas size to mockup size
+                    canvas.width = mockupImg.width;
+                    canvas.height = mockupImg.height;
                     
-                    // Draw original image
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    // Draw mockup as background
+                    ctx.drawImage(mockupImg, 0, 0);
                     
-                    // Apply some enhancement filters (simulated)
-                    ctx.filter = 'brightness(1.05) contrast(1.05) saturate(1.1)';
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    // Add watermark/text
-                    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                    ctx.font = '20px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('Enhanced by AI Mockup Enhancer', canvas.width/2, 30);
-                    
-                    // Convert to data URL
-                    const enhancedDataUrl = canvas.toDataURL('image/png', 1.0);
-                    resolve(enhancedDataUrl);
+                    // Apply texture overlay
+                    if (textureDataUrl) {
+                        const textureImg = new Image();
+                        textureImg.onload = function() {
+                            // Create pattern from texture
+                            const pattern = ctx.createPattern(textureImg, 'repeat');
+                            
+                            // Apply texture with overlay blend mode
+                            ctx.globalCompositeOperation = 'overlay';
+                            ctx.fillStyle = pattern;
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            
+                            // Reset composite operation
+                            ctx.globalCompositeOperation = 'source-over';
+                            
+                            // If design is provided, overlay it
+                            if (designDataUrl) {
+                                const designImg = new Image();
+                                designImg.onload = function() {
+                                    // Center the design
+                                    const x = (canvas.width - designImg.width) / 2;
+                                    const y = (canvas.height - designImg.height) / 2;
+                                    ctx.drawImage(designImg, x, y);
+                                    
+                                    // Add realistic shadows and highlights
+                                    addRealisticEffects(ctx, canvas.width, canvas.height);
+                                    
+                                    // Convert to data URL
+                                    const result = canvas.toDataURL('image/png', 1.0);
+                                    resolve(result);
+                                };
+                                designImg.src = designDataUrl;
+                            } else {
+                                // Add realistic effects
+                                addRealisticEffects(ctx, canvas.width, canvas.height);
+                                
+                                // Convert to data URL
+                                const result = canvas.toDataURL('image/png', 1.0);
+                                resolve(result);
+                            }
+                        };
+                        
+                        // For sample textures (which are CSS gradients)
+                        if (typeof textureDataUrl === 'string' && textureDataUrl.includes('gradient')) {
+                            // Create a texture pattern for sample textures
+                            ctx.fillStyle = textureDataUrl;
+                            ctx.globalAlpha = 0.3;
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.globalAlpha = 1.0;
+                            
+                            // Add realistic effects
+                            addRealisticEffects(ctx, canvas.width, canvas.height);
+                            
+                            const result = canvas.toDataURL('image/png', 1.0);
+                            resolve(result);
+                        } else {
+                            textureImg.src = textureDataUrl;
+                        }
+                    }
                 };
-                img.src = imageDataUrl;
+                mockupImg.src = mockupDataUrl;
             });
         }
 
-        // Instructions Alert
+        function addRealisticEffects(ctx, width, height) {
+            // Add shadow
+            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+            
+            // Draw a subtle border
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 10, width - 20, height - 20);
+            
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            
+            // Add watermark
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('AI Texture Transfer', width/2, height - 30);
+        }
+
+        function createTextureImage(textureType) {
+            // Create a canvas with texture pattern
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 400;
+            const ctx = canvas.getContext('2d');
+            
+            // Create different patterns based on texture type
+            switch(textureType) {
+                case 'leather':
+                    ctx.fillStyle = '#8B4513';
+                    break;
+                case 'cotton':
+                    ctx.fillStyle = '#F5F5DC';
+                    break;
+                case 'silk':
+                    ctx.fillStyle = '#FFD700';
+                    break;
+                default:
+                    ctx.fillStyle = '#CCCCCC';
+            }
+            
+            ctx.fillRect(0, 0, 400, 400);
+            return canvas.toDataURL();
+        }
+
+        function resetApp() {
+            mockupImage = null;
+            designImage = null;
+            selectedTexture = null;
+            selectedTextureUrl = null;
+            
+            // Reset UI
+            document.getElementById('mockupInfo').textContent = '';
+            document.getElementById('designInfo').textContent = '';
+            document.getElementById('customTextureInfo').textContent = '';
+            document.getElementById('mockupUpload').style.borderColor = '';
+            document.getElementById('designUpload').style.borderColor = '';
+            
+            document.querySelectorAll('.texture-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            resultSection.style.display = 'none';
+            processBtn.disabled = true;
+            
+            // Reset file inputs
+            mockupInput.value = '';
+            designInput.value = '';
+            textureInput.value = '';
+            
+            // Reinitialize textures
+            initTextures();
+        }
+
+        // Initialize on load
         window.onload = function() {
+            initTextures();
+            
+            // Show welcome message
             setTimeout(() => {
-                if (confirm("🎉 خوش آمدید!\n\nکیا آپ ہدایات دیکھنا چاہیں گے؟")) {
-                    alert("🚀 استعمال کرنے کا طریقہ:\n\n1. تصویر اپ لوڈ کریں (کلک یا ڈریگ اینڈ ڈراپ)\n2. 'ہائی کوالٹی بنائیں' بٹن دبائیں\n3. نتیجہ دیکھیں اور ڈاؤن لوڈ کریں\n\nیہ ایک ڈیمو ورژن ہے۔ اصلی AI استعمال کرنے کے لیے API کی ضرورت ہوگی۔");
-                }
+                alert("🎨 AI Texture Transfer میں خوش آمدید!\n\nاس ٹول سے آپ:\n1. کسی بھی Mockup سے Texture الگ کر سکتے ہیں\n2. نئی Texture منتخب کر سکتے ہیں\n3. اپنا ڈیزائن نئی Texture پر لاگو کر سکتے ہیں\n\nمثال: T-shirt کی تصویر سے پرنٹ الگ کر کے لکڑی یا دھات کی Texture پر ڈال سکتے ہیں۔");
             }, 1000);
         };
     </script>
