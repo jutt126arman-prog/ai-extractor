@@ -3,32 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Design Extractor Pro</title>
+    <title>Pro AI Vectorizer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/imagetracerjs/1.2.6/imagetracer_v1.2.6.js"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-5">
+<body class="bg-[#0f172a] text-white min-h-screen font-sans">
 
-    <div class="max-w-3xl mx-auto text-center">
-        <h1 class="text-4xl font-bold mb-6 text-blue-400">AI Asset Extractor</h1>
+    <div class="max-w-5xl mx-auto px-4 py-12 text-center">
+        <h1 class="text-5xl font-black mb-4 tracking-tighter bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            VECTORIZER PRO AI
+        </h1>
+        <p class="text-slate-400 text-lg mb-10 text-balance">Apne mockup ko high-quality editable SVG mein badlein. Bilkul Vectorizer.ai ki tarah.</p>
 
-        <div class="bg-gray-800 border-4 border-dashed border-gray-700 rounded-3xl p-10 mb-6">
-            <input type="file" id="imageInput" class="hidden" accept="image/*">
-            <label for="imageInput" class="cursor-pointer block">
-                <p id="statusText">Click karein aur Design upload karein</p>
-                <img id="imagePreview" class="hidden mx-auto mt-4 max-h-64 rounded shadow-lg">
-            </label>
-        </div>
+        <div class="grid md:grid-cols-2 gap-8 items-start">
+            <div class="bg-[#1e293b] p-6 rounded-3xl border border-slate-700 shadow-2xl">
+                <div id="dropZone" class="border-2 border-dashed border-slate-500 rounded-2xl p-8 hover:border-cyan-400 transition cursor-pointer relative">
+                    <input type="file" id="imageInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
+                    <div id="uploadUI">
+                        <div class="text-5xl mb-3">📁</div>
+                        <p class="font-bold">Image Select Karein</p>
+                    </div>
+                    <img id="imagePreview" class="hidden mx-auto rounded-lg max-h-64 shadow-md">
+                </div>
+                
+                <div class="mt-6 flex flex-col gap-3">
+                    <button onclick="processVector()" id="goBtn" class="hidden bg-cyan-500 hover:bg-cyan-400 text-[#0f172a] font-black py-4 rounded-xl text-xl shadow-lg transition-all active:scale-95">
+                        START VECTORIZING
+                    </button>
+                    <p id="loadingMsg" class="hidden text-cyan-400 animate-pulse font-mono">AI is tracing paths... Please wait...</p>
+                </div>
+            </div>
 
-        <button onclick="extractDesign()" id="mainBtn" class="hidden bg-blue-600 px-10 py-4 rounded-full font-bold text-xl mb-10">
-            Extract Design (Original Colors)
-        </button>
-
-        <div id="resultArea" class="hidden bg-gray-800 p-8 rounded-3xl">
-            <h2 class="text-2xl mb-4 text-green-400">Design Alag Ho Gaya!</h2>
-            <canvas id="resultCanvas" class="mx-auto bg-transparent border-2 border-blue-400 max-w-full"></canvas>
-            <div class="mt-6">
-                <a id="downloadBtn" class="bg-green-600 px-8 py-3 rounded-xl font-bold inline-block cursor-pointer">
-                    Download PNG (Transparent)
+            <div id="resultBox" class="bg-[#1e293b] p-6 rounded-3xl border border-slate-700 shadow-2xl min-h-[400px] flex flex-col items-center justify-center">
+                <div id="emptyResult" class="text-slate-500 italic">
+                    Vector preview yahan nazar ayega
+                </div>
+                <div id="svgContainer" class="hidden bg-white p-2 rounded-lg w-full mb-6">
+                    </div>
+                <a id="dlBtn" class="hidden w-full bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-3 rounded-xl transition text-center shadow-lg">
+                    DOWNLOAD SVG FILE
                 </a>
             </div>
         </div>
@@ -36,56 +49,60 @@
 
     <script>
         const imageInput = document.getElementById('imageInput');
-        const imagePreview = document.getElementById('imagePreview');
-        const mainBtn = document.getElementById('mainBtn');
-        const resultArea = document.getElementById('resultArea');
-        const canvas = document.getElementById('resultCanvas');
-        const ctx = canvas.getContext('2d');
+        const preview = document.getElementById('imagePreview');
+        const uploadUI = document.getElementById('uploadUI');
+        const goBtn = document.getElementById('goBtn');
+        const loadingMsg = document.getElementById('loadingMsg');
+        const svgContainer = document.getElementById('svgContainer');
+        const emptyResult = document.getElementById('emptyResult');
+        const dlBtn = document.getElementById('dlBtn');
 
         imageInput.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    imagePreview.src = event.target.result;
-                    imagePreview.classList.remove('hidden');
-                    mainBtn.classList.remove('hidden');
-                    document.getElementById('statusText').innerText = "Image Select Ho Gayi!";
+                reader.onload = (ev) => {
+                    preview.src = ev.target.result;
+                    preview.classList.remove('hidden');
+                    uploadUI.classList.add('hidden');
+                    goBtn.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
             }
         };
 
-        function extractDesign() {
-            // Processing color and transparency
-            canvas.width = imagePreview.naturalWidth;
-            canvas.height = imagePreview.naturalHeight;
-            
-            // Draw original image
-            ctx.drawImage(imagePreview, 0, 0);
-            
-            // Asli magic: Is se colors wapis ayenge aur background transparent hoga
-            // (Note: Ye browser-level extraction hai)
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
+        function processVector() {
+            goBtn.classList.add('hidden');
+            loadingMsg.classList.remove('hidden');
+            emptyResult.classList.add('hidden');
 
-            // Simple logic to make white background transparent while keeping design colors
-            for (let i = 0; i < data.length; i += 4) {
-                let r = data[i], g = data[i+1], b = data[i+2];
-                // Agar pixel white ya light hai toh transparent kar do
-                if (r > 240 && g > 240 && b > 240) {
-                    data[i + 3] = 0; 
-                }
-            }
-            ctx.putImageData(imageData, 0, 0);
+            // Optimized Settings for Vectorizer.ai-like Results
+            const options = {
+                ltres: 0.1,      // Line threshold (Lower = smoother)
+                qtres: 0.1,      // Spline threshold (Lower = more precise)
+                pathomit: 1,     // Don't ignore small details
+                colorsampling: 1, 
+                numberofcolors: 32, // More colors = better detail
+                mincolorratio: 0.001,
+                scale: 1,
+                strokewidth: 0.5
+            };
 
-            // Show result
-            resultArea.classList.remove('hidden');
-            
-            // Fix Download Button
-            const downloadBtn = document.getElementById('downloadBtn');
-            downloadBtn.href = canvas.toDataURL("image/png");
-            downloadBtn.download = "extracted_design.png";
+            // Start Tracing
+            ImageTracer.imageToSVG(preview.src, function(svgstr) {
+                // Show SVG
+                svgContainer.innerHTML = svgstr;
+                svgContainer.classList.remove('hidden');
+                
+                // Set Download
+                const blob = new Blob([svgstr], {type: 'image/svg+xml'});
+                dlBtn.href = URL.createObjectURL(blob);
+                dlBtn.download = "pro_vector_design.svg";
+                
+                dlBtn.classList.remove('hidden');
+                loadingMsg.classList.add('hidden');
+                goBtn.classList.remove('hidden');
+            }, options);
         }
     </script>
 </body>
